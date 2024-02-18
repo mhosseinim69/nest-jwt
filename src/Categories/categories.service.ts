@@ -11,16 +11,6 @@ export class CategoriesService {
     constructor(private prisma: PrismaService) { }
 
     async createCategory(data: Categories): Promise<Categories> {
-        const existing = await this.prisma.categories.findFirst({
-            where: {
-                name: data.name,
-            },
-        });
-
-        if (existing) {
-            throw new ConflictException('categoryname already exists');
-        }
-
         return this.prisma.categories.create({
             data,
         });
@@ -29,24 +19,38 @@ export class CategoriesService {
 
     async updateCategory(id: number, updateCategoryDto: UpdateCategoryDto): Promise<Categories> {
 
+        const idToUpdate = Number(id);
+
+        const category = await this.prisma.categories.findUnique({
+            where: {
+                id: idToUpdate
+            }
+        })
+
         const updatedData: Partial<Categories> = {};
+
         if (updateCategoryDto.name !== undefined) {
             updatedData.name = updateCategoryDto.name;
         }
         if (updateCategoryDto.score !== undefined) {
             updatedData.score = updateCategoryDto.score;
         }
-        const existing = await this.prisma.categories.findFirst({
-            where: {
-                name: updatedData.name,
-            },
-        });
 
-        if (existing) {
-            throw new ConflictException('categoryname already exists');
+        if (updateCategoryDto.action) {
+            updatedData.name = category.name
+            switch (updateCategoryDto.action) {
+
+                case "increment":
+                    updatedData.score = category.score + 1;
+                    break;
+                case "decrement":
+                    updatedData.score = category.score - 1;
+                    break;
+                default:
+                    break;
+
+            }
         }
-
-        const idToUpdate = Number(id);
 
         return this.prisma.categories.update({
             where: { id: idToUpdate },
@@ -70,7 +74,6 @@ export class CategoriesService {
             }
         })
     }
-
 
 
     async deleteCategory(id: number): Promise<any> {
