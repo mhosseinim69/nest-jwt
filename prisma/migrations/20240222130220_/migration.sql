@@ -9,6 +9,15 @@ CREATE TABLE "Users" (
     CONSTRAINT "Users_pkey" PRIMARY KEY ("id")
 );
 
+-- CreateTable
+CREATE TABLE "Categories" (
+    "id" SERIAL NOT NULL,
+    "name" TEXT NOT NULL,
+    "score" INTEGER NOT NULL,
+
+    CONSTRAINT "Categories_pkey" PRIMARY KEY ("id")
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "Users_username_key" ON "Users"("username");
 
