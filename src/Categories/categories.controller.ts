@@ -4,14 +4,30 @@ import { Request, Response } from 'express'
 import { CreateCategoryDto } from "./dto/create.category.dto";
 import { UpdateCategoryDto } from "./dto/update.category.dto";
 import { JwtAuthGuard } from "../authentication/auth.guard";
+import {
+    ApiBearerAuth,
+    ApiBody,
+    ApiTags,
+    ApiCreatedResponse,
+    ApiOkResponse,
+    ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
 
-
+@ApiTags('categories')
 @Controller('categories')
 export class CategoriesController {
     constructor(private readonly categoryService: CategoriesService) { }
 
+
+    @ApiCreatedResponse({ description: "Category was created" })
+    @ApiUnauthorizedResponse({ description: "invalid credentials" })
+    @ApiBearerAuth('access-token')
+    @ApiBody({
+        type: CreateCategoryDto,
+    })
     @Post()
     @UseGuards(JwtAuthGuard)
+
     async createCategory(@Body() createCategoryDto: CreateCategoryDto, @Res() response: Response): Promise<any> {
         try {
             const newCategory = await this.categoryService.createCategory(createCategoryDto);
@@ -28,7 +44,12 @@ export class CategoriesController {
             });
         }
     }
-
+    @ApiUnauthorizedResponse({ description: "invalid credentials" })
+    @ApiOkResponse({ description: "Category was updated" })
+    @ApiBearerAuth('access-token')
+    @ApiBody({
+        type: UpdateCategoryDto,
+    })
 
     @Put(':id')
     @UseGuards(JwtAuthGuard)
@@ -52,9 +73,11 @@ export class CategoriesController {
         }
     }
 
-
     @Get()
     @UseGuards(JwtAuthGuard)
+    @ApiBearerAuth('access-token')
+    @ApiUnauthorizedResponse({ description: "invalid credentials" })
+    @ApiOkResponse({ description: "Get all users" })
     async getAllUsers(@Req() request: Request, @Res() response: Response): Promise<any> {
         try {
             const result = await this.categoryService.getAllCategory();
@@ -74,6 +97,9 @@ export class CategoriesController {
 
     @Get(':id')
     @UseGuards(JwtAuthGuard)
+    @ApiBearerAuth('access-token')
+    @ApiUnauthorizedResponse({ description: "invalid credentials" })
+    @ApiOkResponse({ description: "Get user" })
     async getCategoryById(@Param('id') id: number, @Res() response: Response): Promise<any> {
         try {
             const category = await this.categoryService.getCategoryById(id);
@@ -97,6 +123,9 @@ export class CategoriesController {
 
     @Delete(':id')
     @UseGuards(JwtAuthGuard)
+    @ApiBearerAuth('access-token')
+    @ApiUnauthorizedResponse({ description: "invalid credentials" })
+    @ApiOkResponse({ description: "User was deleted" })
     async deleteCategory(@Param('id') id: number, @Res() response: Response): Promise<any> {
         try {
             const deletedCategory = await this.categoryService.deleteCategory(id);
