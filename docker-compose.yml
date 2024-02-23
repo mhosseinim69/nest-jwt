@@ -19,8 +19,9 @@ services:
     container_name: nest-docker-postgres
     environment:
       - PORT=${PORT}
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/postgres?schema=public
     ports:
-      - '3033:3033'
+      - '3000:3000'
     depends_on:
       - db
     volumes:
